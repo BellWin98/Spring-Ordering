@@ -24,7 +24,7 @@ public class Item extends BaseTimeEntity {
     private int price;
     private int stockQuantity;
     private String imagePath;
-    @Builder.Default
+    @Builder.Default // 이걸 안쓰면 여기서 초기화 해도 초기 item 생성할 때 builder에서 Null값 들어감
     private String delYn = "N"; // 통상 String 자료형으로 사용
 
     public void deleteItem(){
