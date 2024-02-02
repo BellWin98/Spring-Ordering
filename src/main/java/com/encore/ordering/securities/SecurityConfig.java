@@ -38,14 +38,14 @@ public class SecurityConfig {
                 .httpBasic().disable()
                 .authorizeRequests()
                     // Authentication 객체 없어도 실행되는 URL 패턴
-                    .antMatchers("/member/create", "/doLogin", "/items", "item/image/**")
+                    .antMatchers("/member/create", "/doLogin", "/items", "/item/*/image")
                     .permitAll()
                 .anyRequest().authenticated()
                 .and()
                 // 세션을 사용하지 않는 설정 추가
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                // Custom Filter 추가
+                // Custom Filter 추가 (UsernamePasswordAuthenticationFilter 실행 전에 jwtAuthFilter를 실행)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

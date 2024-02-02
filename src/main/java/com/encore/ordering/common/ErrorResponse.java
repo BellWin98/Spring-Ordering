@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ErrorResponseDto {
+public class ErrorResponse {
     public static ResponseEntity<Map<String, Object>> errorResponseMessage(HttpStatus httpStatus, String message){
         // 객체는 JSON으로 직렬화 된다.
         Map<String, Object> body = new HashMap<>();

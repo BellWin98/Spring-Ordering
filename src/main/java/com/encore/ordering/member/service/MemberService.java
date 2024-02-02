@@ -1,6 +1,5 @@
 package com.encore.ordering.member.service;
 
-import com.encore.ordering.member.domain.Address;
 import com.encore.ordering.member.domain.Member;
 import com.encore.ordering.member.dto.request.CreateMemberRequest;
 import com.encore.ordering.member.dto.request.LoginRequest;
@@ -45,7 +44,7 @@ public class MemberService {
         return MemberResponse.from(findMember);
     }
 
-    public List<MemberResponse> findAll(){
+    public List<MemberResponse> findMembers(){
         List<Member> members = memberRepository.findAll();
         return members.stream().map(MemberResponse::from).collect(Collectors.toList());
     }

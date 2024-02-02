@@ -1,8 +1,9 @@
 package com.encore.ordering.securities;
 
-import com.encore.ordering.common.ErrorResponseDto;
+import com.encore.ordering.common.ErrorResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +24,10 @@ import java.util.List;
 
 @Component
 public class JwtAuthFilter extends GenericFilter {
+
+    @Value("${jwt.secretKey}")
+    private String secretKey;
+
     @Override
     // request 객체 안에 토큰이 들어가 있다.
     public void doFilter(ServletRequest request,
@@ -38,7 +43,7 @@ public class JwtAuthFilter extends GenericFilter {
                 String token = bearerToken.substring(7);
 
                 // 토큰 검증 및 Claims 추출
-                Claims claims = Jwts.parser().setSigningKey("mySecret").parseClaimsJws(token).getBody();
+                Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
 
                 // Authentication 객체를 생성하기 위한 UserDetails 생성
                 List<GrantedAuthority> authorities = new ArrayList<>();
@@ -55,7 +60,7 @@ public class JwtAuthFilter extends GenericFilter {
             HttpServletResponse httpServletResponse = (HttpServletResponse) response;
             httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
             httpServletResponse.setContentType("application/json");
-            httpServletResponse.getWriter().write(ErrorResponseDto.errorResponseMessage(
+            httpServletResponse.getWriter().write(ErrorResponse.errorResponseMessage(
                     HttpStatus.UNAUTHORIZED, e.getMessage()).toString());
         }
     }
