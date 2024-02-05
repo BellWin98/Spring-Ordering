@@ -6,15 +6,13 @@ import com.encore.ordering.member.dto.request.CreateMemberRequest;
 import com.encore.ordering.member.dto.request.LoginRequest;
 import com.encore.ordering.member.dto.response.MemberResponse;
 import com.encore.ordering.member.service.MemberService;
+import com.encore.ordering.order.service.OrderService;
 import com.encore.ordering.securities.JwtProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
@@ -24,11 +22,13 @@ import java.util.Map;
 @RestController
 public class MemberController {
     private final MemberService memberService;
+    private final OrderService orderService;
     private final JwtProvider jwtProvider;
 
     @Autowired
-    public MemberController(MemberService memberService, JwtProvider jwtProvider){
+    public MemberController(MemberService memberService, OrderService orderService, JwtProvider jwtProvider){
         this.memberService = memberService;
+        this.orderService = orderService;
         this.jwtProvider = jwtProvider;
     }
 
@@ -40,10 +40,22 @@ public class MemberController {
     }
 
     // 특정 회원의 주문 내역 조회 (관리자 권한)
-//    @GetMapping("/member/{id}/orders")
-//
-//    // 내 주문 내역 조회
-//    @GetMapping("/member/myorders")
+    // 용도: 회원 목록 조회 -> 회원별 주문 목록 조회
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/member/{id}/orders")
+    public ResponseEntity<CommonResponse> findMemberOrders(@PathVariable Long id){
+        return new ResponseEntity<>(new CommonResponse(HttpStatus.OK,
+                "Member Orders Successfully Found", orderService.findMemberOrders(id)), HttpStatus.OK);
+    }
+
+    // 내 주문 내역 조회
+    // 토큰 안에 있는 이메일 정보와, 매개변수를 통해 넘어온 이메일이 동일할 때
+//    @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
+    @GetMapping("/member/my-orders")
+    public ResponseEntity<CommonResponse> findMyOrders(){
+        return new ResponseEntity<>(new CommonResponse(HttpStatus.OK,
+                "My Orders Successfully Found", orderService.findMyOrders()), HttpStatus.OK);
+    }
 
     @PostMapping("/doLogin")
     public ResponseEntity<CommonResponse> login(@Valid @RequestBody LoginRequest loginRequest){
