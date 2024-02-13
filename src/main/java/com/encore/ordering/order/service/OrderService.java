@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,28 +39,32 @@ public class OrderService {
         this.itemRepository = itemRepository;
     }
 
-    public Ordering create(OrderRequest orderRequest){
+    public Ordering create(List<OrderRequest> orderRequests){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Member findMember = memberRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new EntityNotFoundException("Member Email Not Found"));
 
+        if (orderRequests.isEmpty()){
+            throw new IllegalArgumentException("선택한 상품이 없습니다.");
+        }
+
         Ordering ordering = Ordering.builder().member(findMember).build();
 
         // Ordering 객체가 생성될 때 Cascade.Persist에 의해 OrderItem 객체도 함께 생성
-        for (OrderRequest.OrderItemRequest orderItemRequest : orderRequest.getOrderItemRequests()){
-            Item findItem = itemRepository.findById(orderItemRequest.getItemId())
+        for (OrderRequest orderRequest : orderRequests){
+            Item findItem = itemRepository.findById(orderRequest.getItemId())
                     .orElseThrow(() -> new EntityNotFoundException("Item Not Found"));
             OrderItem orderItem = OrderItem.builder()
-                    .quantity(orderItemRequest.getQuantity())
+                    .quantity(orderRequest.getCount())
                     .ordering(ordering)
                     .item(findItem)
                     .build();
             ordering.getOrderItems().add(orderItem);
-            if (findItem.getStockQuantity() - orderItemRequest.getQuantity() < 0){
+            if (findItem.getStockQuantity() - orderRequest.getCount() < 0){
                 throw new IllegalArgumentException("상품 재고가 부족합니다.");
             }
             orderItem.getItem().updateStockQuantity(
-                    findItem.getStockQuantity() - orderItemRequest.getQuantity());
+                    findItem.getStockQuantity() - orderRequest.getCount());
         }
         return orderRepository.save(ordering);
     }

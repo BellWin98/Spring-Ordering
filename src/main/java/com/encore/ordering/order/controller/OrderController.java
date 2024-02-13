@@ -26,8 +26,8 @@ public class OrderController {
     }
 
     @PostMapping("/order/create")
-    public ResponseEntity<CommonResponse> create(@RequestBody OrderRequest orderRequest){
-        Ordering ordering = orderService.create(orderRequest);
+    public ResponseEntity<CommonResponse> create(@RequestBody List<OrderRequest> orderRequests){
+            Ordering ordering = orderService.create(orderRequests);
         return new ResponseEntity<>(new CommonResponse(HttpStatus.CREATED,
                 "Order Successfully Created", ordering.getId()), HttpStatus.CREATED);
     }

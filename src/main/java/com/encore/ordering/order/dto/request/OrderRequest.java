@@ -8,13 +8,15 @@ import java.util.List;
 public class OrderRequest {
 //    private List<Long> itemIds;
 //    private List<Integer> quantities;
-    private List<OrderItemRequest> orderItemRequests;
+//    private List<OrderItemRequest> orderItemRequests;
+    private Long itemId;
+    private int count;
 
-    @Data
-    public static class OrderItemRequest{
-        private Long itemId;
-        private int quantity;
-    }
+//    @Data
+//    public static class OrderItemRequest{
+//        private Long itemId;
+//        private int count;
+//    }
 }
 
 /**
@@ -32,4 +34,12 @@ public class OrderRequest {
  *          {"itemId" : 20, "quantity" : 20}
  *     ]
  * }
+ */
+
+/**
+ * 최종적으로 받아올 데이터
+ * [
+ *      {"itemId" : 1, "quantity" : 10},
+ *      {"itemId" : 20, "quantity" : 20}
+ * ]
  */
