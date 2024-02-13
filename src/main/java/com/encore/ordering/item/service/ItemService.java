@@ -43,17 +43,20 @@ public class ItemService {
     }
 
     public Item create(ItemRequest itemRequest) {
-        MultipartFile multipartFile = itemRequest.getItemImage();
-        String fileName = multipartFile.getOriginalFilename(); // 확장자 포함한 파일명 추출
         Item item = itemRepository.save(Item.toEntity(itemRequest));
-        Path path = Paths.get("C:/Users/Playdata/OneDrive/바탕 화면/tmp/", item.getId() + "_" + fileName);
-        item.setImagePath(path.toString());
-        try {
-            byte[] bytes = multipartFile.getBytes(); // 이미지 파일을 바이트로 변환
-            // 해당 경로의 폴더에 이미지 파일 추가. 이미 동일 파일이 있으면 덮어 쓰기(Write), 없으면 Create
-            Files.write(path, bytes, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Image Not Available");
+        if (itemRequest.getItemImage() != null){
+            log.info("이미지 추가");
+            MultipartFile multipartFile = itemRequest.getItemImage();
+            String fileName = multipartFile.getOriginalFilename(); // 확장자 포함한 파일명 추출
+            Path path = Paths.get("C:/Users/Playdata/OneDrive/바탕 화면/tmp/", item.getId() + "_" + fileName);
+            item.setImagePath(path.toString());
+            try {
+                byte[] bytes = multipartFile.getBytes(); // 이미지 파일을 바이트로 변환
+                // 해당 경로의 폴더에 이미지 파일 추가. 이미 동일 파일이 있으면 덮어 쓰기(Write), 없으면 Create
+                Files.write(path, bytes, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Image Not Available");
+            }
         }
         return item;
     }
