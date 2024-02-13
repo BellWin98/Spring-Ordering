@@ -2,7 +2,10 @@ package com.encore.ordering.securities;
 
 import com.encore.ordering.common.ErrorResponse;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -23,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@Slf4j
 public class JwtAuthFilter extends GenericFilter {
 
     @Value("${jwt.secretKey}")
@@ -32,7 +36,7 @@ public class JwtAuthFilter extends GenericFilter {
     // request 객체 안에 토큰이 들어가 있다.
     public void doFilter(ServletRequest request,
             ServletResponse response,
-            FilterChain chain) throws IOException, ServletException {
+            FilterChain chain) throws IOException, ServletException, AuthenticationServiceException, ExpiredJwtException {
         try{
             String bearerToken = ((HttpServletRequest) request).getHeader("Authorization");
             if (bearerToken != null){
@@ -41,7 +45,7 @@ public class JwtAuthFilter extends GenericFilter {
                 }
                 // bearer 토큰에서 토큰 값만 추출
                 String token = bearerToken.substring(7);
-
+                
                 // 토큰 검증 및 Claims 추출
                 Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
 
@@ -56,7 +60,7 @@ public class JwtAuthFilter extends GenericFilter {
             }
             // FilterChain에서 그 다음 Filtering으로 넘어가도록 하는 메서드
             chain.doFilter(request, response);
-        } catch (AuthenticationServiceException e){
+        } catch (Exception e) {
             HttpServletResponse httpServletResponse = (HttpServletResponse) response;
             httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
             httpServletResponse.setContentType("application/json");

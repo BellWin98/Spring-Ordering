@@ -11,8 +11,8 @@ public class ErrorResponse {
         // 객체는 JSON으로 직렬화 된다.
         Map<String, Object> body = new HashMap<>();
         body.put("status", String.valueOf(httpStatus.value()));
-        body.put("status message", httpStatus.getReasonPhrase());
-        body.put("error message", message);
+        body.put("status_message", httpStatus.getReasonPhrase());
+        body.put("error_message", message);
         return new ResponseEntity<>(body, httpStatus);
     }
 }

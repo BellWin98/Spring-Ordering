@@ -29,7 +29,7 @@ public class ItemController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/item/create")
-    // 이미지 파일을 받아와야 하므로, multipart를 사용해야함. JSON이 아닌 form-data 활용
+    // 이미지 파일을 받아와야 하므로, multipart를 사용해야함. JSON이 아닌 form-data 활용 (@RequestBody 미사용)
     public ResponseEntity<CommonResponse> create(ItemRequest itemRequest){
         Item item = itemService.create(itemRequest);
         return new ResponseEntity<>(new CommonResponse(HttpStatus.CREATED,
@@ -37,17 +37,18 @@ public class ItemController {
     }
 
     @GetMapping("/items")
+    // Page size default: 20, 0번 페이지부터 시작
     public ResponseEntity<List<ItemResponse>> findItems(SearchItemRequest searchItemRequest, Pageable pageable){
         List<ItemResponse> itemResponses = itemService.findItems(searchItemRequest, pageable);
         return new ResponseEntity<>(itemResponses, HttpStatus.OK);
     }
 
     @GetMapping("/item/{id}/image")
-    public ResponseEntity<Resource> findImage(@PathVariable Long id){
-        Resource resource = itemService.findImage(id);
-        HttpHeaders headers = new HttpHeaders(); // 파일의 타입을 스프링에 알려주기 위함
-        headers.setContentType(MediaType.IMAGE_JPEG);
-        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+        public ResponseEntity<Resource> findImage(@PathVariable Long id){
+            Resource resource = itemService.findImage(id);
+            HttpHeaders headers = new HttpHeaders(); // 파일의 타입을 스프링에 알려주기 위함
+            headers.setContentType(MediaType.IMAGE_JPEG);
+            return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -65,5 +66,4 @@ public class ItemController {
         return new ResponseEntity<>(new CommonResponse(HttpStatus.OK,
                 "Item Successfully Deleted", item.getId()), HttpStatus.OK);
     }
-
 }
